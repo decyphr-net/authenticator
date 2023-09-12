@@ -2,6 +2,7 @@ use crate::users::{
     model::User,
     schemas::{LoginUserSchema, RegisterUserSchema, TokenClaims},
     entities::FilteredUser,
+    middleware::JwtMiddleware
 };
 use crate::AppState;
 use actix_web::{
@@ -176,4 +177,23 @@ async fn login(
             }
         )
     )
+}
+
+#[get("/auth/logout")]
+async fn logout(_: JwtMiddleware) -> impl Responder {
+    let cookie = Cookie::build("token", "")
+        .path("/")
+        .max_age(ActixWebDuration::new(-1, 0))
+        .http_only(true)
+        .finish();
+
+    HttpResponse::Ok()
+        .cookie(cookie)
+        .json(
+            json!(
+                {
+                    "status": "success"
+                }
+            )
+        )
 }

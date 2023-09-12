@@ -70,6 +70,7 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/api")
                     .service(users::controllers::register)
                     .service(users::controllers::login)
+                    .service(users::controllers::logout)
                     .service(ping::controllers::ping)
             )
     })
