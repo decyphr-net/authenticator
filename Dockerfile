@@ -12,4 +12,5 @@ COPY . .
 EXPOSE 8080
 
 RUN cargo install --path .
-ENTRYPOINT ["/bin/bash", "-c", "echo 'Hello there!'; source $HOME/.cargo/env; cd ./rust-actix-rest/; cargo run --release"]
+RUN cargo install cargo-watch
+ENTRYPOINT ["/bin/bash", "-c", "echo 'Hello there!'; RUSTFLAGS=-Awarnings cargo watch -q -c -w src/ -x run"]
