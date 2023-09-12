@@ -1,31 +1,19 @@
 mod users;
 mod config;
-use crate::config::application::Config;
+mod ping;
+
+use config::entities::{ApplicationConfig, DatabaseConfig};
 
 use actix_cors::Cors;
 use actix_web::middleware::Logger;
-use actix_web::{http::header, web, App, HttpServer, HttpResponse, Responder, get};
+use actix_web::{http::header, web, App, HttpServer};
 use dotenv::dotenv;
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 
 pub struct AppState {
     db: Pool<Postgres>,
-    env: Config,
+    env: ApplicationConfig,
 }
-
-#[get("/api/ping")]
-async fn ping() -> impl Responder {
-    const MESSAGE: &str = "Ping successful";
-    HttpResponse::Ok().json(
-        serde_json::json!(
-            {
-                "status": "success",
-                "message": MESSAGE
-            }
-        )
-    )
-}
-
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -35,11 +23,12 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init();
 
-    let config = Config::init();
+    let app_config = ApplicationConfig::init();
+    let db_config = DatabaseConfig::init();
 
     let pool = match PgPoolOptions::new()
-        .max_connections(10)
-        .connect(&config.database_url)
+        .max_connections(db_config.max_connections)
+        .connect(&db_config.database_url)
         .await
     {
         Ok(pool) => {
@@ -71,13 +60,17 @@ async fn main() -> std::io::Result<()> {
                 web::Data::new(
                     AppState {
                         db: pool.clone(),
-                        env: config.clone()
+                        env: app_config.clone()
                     }
                 )
             )
-            .configure(users::controllers::config)
             .wrap(cors)
             .wrap(Logger::default())
+            .service(
+                web::scope("/api")
+                    .service(users::controllers::register)
+                    .service(ping::controllers::ping)
+            )
     })
     .bind(("0.0.0.0", 8080))?
     .run()
