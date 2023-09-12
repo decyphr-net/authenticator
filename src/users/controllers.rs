@@ -197,3 +197,35 @@ async fn logout(_: JwtMiddleware) -> impl Responder {
             )
         )
 }
+
+#[get("/users/me")]
+async fn profile(
+    req: HttpRequest,
+    data: web::Data<AppState>,
+    _: JwtMiddleware
+) -> impl Responder {
+    let ext = req.extensions();
+    let user_id = ext.get::<uuid::Uuid>().unwrap();
+
+    let user = sqlx::query_as!(
+        User,
+        "SELECT * FROM users WHERE id=$1",
+        user_id
+    )
+        .fetch_one(&data.db)
+        .await
+        .unwrap();
+
+    let json_response = serde_json::json!(
+        {
+            "status": "success",
+            "data": serde_json::json!(
+                {
+                    "user": filter_user_record(&user)
+                }
+            )
+        }
+    );
+
+    HttpResponse::Ok().json(json_response)
+}

@@ -71,6 +71,7 @@ async fn main() -> std::io::Result<()> {
                     .service(users::controllers::register)
                     .service(users::controllers::login)
                     .service(users::controllers::logout)
+                    .service(users::controllers::profile)
                     .service(ping::controllers::ping)
             )
     })
