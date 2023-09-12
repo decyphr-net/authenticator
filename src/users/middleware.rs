@@ -5,7 +5,7 @@ use actix_web::error::ErrorUnauthorized;
 use actix_web::{dev::Payload, Error as ActixWebError};
 use actix_web::{http, web, FromRequest, HttpMessage, HttpRequest};
 use jsonwebtoken::{decode, DecodingKey, Validation};
-use serde::Serialize;
+
 
 use crate::users::schemas::TokenClaims;
 use crate::users::entities::ErrorResponse;

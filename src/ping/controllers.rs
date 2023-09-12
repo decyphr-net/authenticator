@@ -1,7 +1,7 @@
 use crate::AppState;
-use crate::ping::entities::{DBResponse, PingResponse};
+use crate::ping::entities::{DBResponse};
 use actix_web::{HttpResponse, Responder, get, web};
-use serde_json::json;
+
 
 #[get("/ping")]
 async fn ping(data: web::Data<AppState>) -> impl Responder {
@@ -39,14 +39,4 @@ async fn ping(data: web::Data<AppState>) -> impl Responder {
                 );
         }
     }
-
-    const MESSAGE: &str = "Ping successful";
-    HttpResponse::Ok().json(
-        serde_json::json!(
-            {
-                "status": "success",
-                "message": MESSAGE
-            }
-        )
-    )
 }
