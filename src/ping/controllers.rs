@@ -2,7 +2,6 @@ use crate::AppState;
 use crate::ping::entities::{DBResponse, PingResponse};
 use actix_web::{HttpResponse, Responder, get, web};
 use serde_json::json;
-use sqlx::Row;
 
 #[get("/ping")]
 async fn ping(data: web::Data<AppState>) -> impl Responder {
